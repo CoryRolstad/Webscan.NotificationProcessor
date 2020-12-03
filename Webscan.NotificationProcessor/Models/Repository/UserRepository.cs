@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Webscan.NotificationProcessor.Datastore;
@@ -26,19 +27,24 @@ namespace Webscan.NotificationProcessor.Models.Repository
 
         public User Get(int id)
         {
-            return _webscanContext.Users.FirstOrDefault(x => x.Id == id);
+            return _webscanContext.Users.Include(x => x.StatusChecks).FirstOrDefault(x => x.Id == id);
         }
 
         public IEnumerable<User> GetAll()
         {
-            return _webscanContext.Users.ToList();
+            return _webscanContext.Users.Include(x => x.StatusChecks).ToList();
         }
 
         public void Update(User dbEntity, User entity)
         {
-            dbEntity.email = entity.email;
-            dbEntity.StatusChecks = entity.StatusChecks;
             dbEntity.Username = entity.Username;
+            dbEntity.email = entity.email;
+
+            dbEntity.StatusChecks.Clear(); 
+            foreach(var statusCheck in entity.StatusChecks)
+            {
+                dbEntity.StatusChecks.Add(statusCheck);
+            }
 
             _webscanContext.SaveChanges();
         }

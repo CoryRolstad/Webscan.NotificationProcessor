@@ -9,6 +9,8 @@ namespace Webscan.NotificationProcessor.Datastore
         {
 
         }
+
+
         public DbSet<StatusCheck> StatusChecks { get; set; }
         public DbSet<User> Users { get; set; }
     }

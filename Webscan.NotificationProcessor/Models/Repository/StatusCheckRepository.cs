@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Webscan.NotificationProcessor.Datastore;
@@ -27,20 +28,18 @@ namespace Webscan.NotificationProcessor.Models.Repository
 
         public StatusCheck Get(int id)
         {
-           return _webscanContext.StatusChecks.FirstOrDefault(x => x.Id == id);
+           return _webscanContext.StatusChecks.Include(x => x.Users).FirstOrDefault(x => x.Id == id);
         }
 
         public IEnumerable<StatusCheck> GetAll()
         {
-            return _webscanContext.StatusChecks.ToList(); 
+            return _webscanContext.StatusChecks.Include(x => x.Users).ToList(); 
         }
 
-        public void Update(StatusCheck dbEntity, StatusCheck entity)
+        public void Update(StatusCheck statusCheck)
         {
-            dbEntity.Url = entity.Url;
-            dbEntity.XPath = entity.XPath;
-            dbEntity.XPathContentFailureString = entity.XPathContentFailureString;
-
+            StatusCheck entity = _webscanContext.StatusChecks.FirstOrDefault(x => x.Id == statusCheck.Id);
+            entity.LastNotified = statusCheck.LastNotified;
             _webscanContext.SaveChanges(); 
         }
     }

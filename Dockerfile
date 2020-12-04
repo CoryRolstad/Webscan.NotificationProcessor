@@ -6,7 +6,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["Webscan.NotificationProcessor/Webscan.NotificationProcessor.csproj", "Webscan.NotificationProcessor/"]
-RUN dotnet restore "Webscan.NotificationProcessor/Webscan.NotificationProcessor.csproj"
+COPY nuget.config .
+RUN dotnet restore "Webscan.NotificationProcessor/Webscan.NotificationProcessor.csproj" --configfile ./nuget.config
 COPY . .
 WORKDIR "/src/Webscan.NotificationProcessor"
 RUN dotnet build "Webscan.NotificationProcessor.csproj" -c Release -o /app/build

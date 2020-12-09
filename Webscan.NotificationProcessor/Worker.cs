@@ -84,9 +84,9 @@ namespace Webscan.NotificationProcessor
 
                     foreach (User user in statusCheckFromDb.Users)
                     {
-                        await notifierService.SendTextEmail("llN3M3515ll@gmail.com", user.email, $"", $"{statusCheckFromDb.Name} Is Now In Stock At: {statusCheck.Url}");
+                        //await notifierService.SendTextEmail("llN3M3515ll@gmail.com", user.email, $"", $"{statusCheckFromDb.Name} Is Now In Stock At: {statusCheck.Url}");
                         // This might be useful if it will display in HTML - which maybe different per carrier / phone - but currently my samsung s20+ does shows the link but a seperate text.
-                        //await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is Available", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
+                        await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is now in stock", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
                     }
                     statusCheckFromDb.LastNotified = DateTime.Now;
                     statusCheckRepository.Update(statusCheckFromDb);

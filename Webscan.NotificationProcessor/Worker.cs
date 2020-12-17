@@ -81,7 +81,7 @@ namespace Webscan.NotificationProcessor
                 IEnumerable<User> usersToBeNotified = statusCheckRepository.GetUsers(statusCheck.Id);
 
                 // Check to see when it was last notified and 
-                if(DateTime.Now > statusCheckFromDb.LastNotified.AddMinutes(1))
+                if(DateTime.Now > statusCheckFromDb.LastNotified.AddMinutes(15))
                 { 
                     INotifierService notifierService = scope.ServiceProvider.GetRequiredService<INotifierService>();
 

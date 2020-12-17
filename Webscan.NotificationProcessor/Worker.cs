@@ -78,15 +78,16 @@ namespace Webscan.NotificationProcessor
                 IStatusCheckRepository<StatusCheck> statusCheckRepository = scope.ServiceProvider.GetRequiredService<IStatusCheckRepository<StatusCheck>>();
                 StatusCheck statusCheckFromDb = statusCheckRepository.Get(statusCheck.Id);
                 // Check to see when it was last notified and 
-                if(DateTime.Now > statusCheckFromDb.LastNotified.AddMinutes(15))
+                if(DateTime.Now > statusCheckFromDb.LastNotified.AddMinutes(1))
                 { 
                     INotifierService notifierService = scope.ServiceProvider.GetRequiredService<INotifierService>();
 
                     foreach (User user in statusCheckFromDb.Users)
                     {
-                        //await notifierService.SendTextEmail("llN3M3515ll@gmail.com", user.email, $"", $"{statusCheckFromDb.Name} Is Now In Stock At: {statusCheck.Url}");
+                        await notifierService.SendTextEmail("llN3M3515ll@gmail.com", user.email, $"", $"{statusCheckFromDb.Name} Is Now In Stock At: {statusCheck.BitlyShortenedUrl}");
                         // This might be useful if it will display in HTML - which maybe different per carrier / phone - but currently my samsung s20+ does shows the link but a seperate text.
-                        await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is now in stock", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
+                        //await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is now in stock", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
+                        //await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is Available", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
                     }
                     statusCheckFromDb.LastNotified = DateTime.Now;
                     statusCheckRepository.Update(statusCheckFromDb);
@@ -123,6 +124,13 @@ namespace Webscan.NotificationProcessor
                         StatusCheck statusCheck = JsonConvert.DeserializeObject<StatusCheck>(consumeResult.Message.Value);
                         _logger.LogInformation($"\t{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff")}:\tReceived Kafka Message on {_kafkaSettings.Value.NotifierTopicName}");
                         _logger.LogInformation($"\t{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff")}:\t\t{statusCheck.Name}\n\t\t\t{statusCheck.Url}");
+
+                        if (statusCheck.TimeScheduled.AddMinutes(2) < DateTime.Now)
+                        {
+                            _logger.LogInformation($"\t{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff")}:\t\t{statusCheck.Name} was scheduled at {statusCheck.TimeScheduled.ToString("MM/dd/yyyy hh:mm:ss.fff")} and is stale skipping!!!");
+                            continue;
+                        }
+
                         // handle consumed message.
                         // 1.) Query database and get the users that need to be notified
                         // 2.) Send Notification to each Entity

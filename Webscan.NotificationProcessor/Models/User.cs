@@ -12,6 +12,6 @@ namespace Webscan.NotificationProcessor.Models
         public int Id { get; set; }
         public string Username { get; set; }
         public string email { get; set; }
-        public ICollection<StatusCheck> StatusChecks { get; } = new List<StatusCheck>(); 
+        public List<StatusCheck> StatusChecks { get; } = new List<StatusCheck>();
     }
 }

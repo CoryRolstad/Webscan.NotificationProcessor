@@ -9,5 +9,7 @@ namespace Webscan.NotificationProcessor.Models.Repository
         void Add(TEntity entity);
         void Update(TEntity statusCheck);
         void Delete(TEntity entity);
+
+        public IEnumerable<User> GetUsers(int statusCheckId);
     }
 }

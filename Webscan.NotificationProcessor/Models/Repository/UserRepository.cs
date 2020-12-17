@@ -26,12 +26,12 @@ namespace Webscan.NotificationProcessor.Models.Repository
         }
 
         public User Get(int id)
-        {
+        {            
             return _webscanContext.Users.Include(x => x.StatusChecks).FirstOrDefault(x => x.Id == id);
         }
 
         public IEnumerable<User> GetAll()
-        {
+        {            
             return _webscanContext.Users.Include(x => x.StatusChecks).ToList();
         }
 

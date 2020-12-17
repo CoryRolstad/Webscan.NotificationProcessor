@@ -23,7 +23,15 @@ namespace Webscan.NotificationProcessor.Datastore
                 .WithMany(sc => sc.Users)
                 .UsingEntity<StatusCheckUser>(
                     scu => scu.HasOne<StatusCheck>().WithMany(),
-                    scu => scu.HasOne<User>().WithMany());
+                    scu => scu.HasOne<User>().WithMany(),
+                    scu =>
+                        {
+                            scu.Property(pt => pt.Enabled);
+                            scu.HasKey(jt => new { jt.StatusCheckId, jt.UserId });
+                        }
+                    ) ;
+                
+                
 
         }
     }

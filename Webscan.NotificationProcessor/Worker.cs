@@ -76,18 +76,19 @@ namespace Webscan.NotificationProcessor
             {
                 _logger.LogInformation($"{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff")}: Retreiving Collection of Users for {statusCheck.Name} From Database");
                 IStatusCheckRepository<StatusCheck> statusCheckRepository = scope.ServiceProvider.GetRequiredService<IStatusCheckRepository<StatusCheck>>();
+
                 StatusCheck statusCheckFromDb = statusCheckRepository.Get(statusCheck.Id);
+                IEnumerable<User> usersToBeNotified = statusCheckRepository.GetUsers(statusCheck.Id);
+
                 // Check to see when it was last notified and 
                 if(DateTime.Now > statusCheckFromDb.LastNotified.AddMinutes(1))
                 { 
                     INotifierService notifierService = scope.ServiceProvider.GetRequiredService<INotifierService>();
 
-                    foreach (User user in statusCheckFromDb.Users)
+                    foreach (User user in usersToBeNotified)
                     {
+                        _logger.LogInformation($"{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fff")}: Sending Notification of {statusCheck.Name} to {user.Username} at {user.email}");
                         await notifierService.SendTextEmail("llN3M3515ll@gmail.com", user.email, $"", $"{statusCheckFromDb.Name} Is Now In Stock At: {statusCheck.BitlyShortenedUrl}");
-                        // This might be useful if it will display in HTML - which maybe different per carrier / phone - but currently my samsung s20+ does shows the link but a seperate text.
-                        //await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is now in stock", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
-                        //await notifierService.SendHtmlEmail("llN3M3515ll@gmail.com", user.email, $"{statusCheckFromDb.Name} Is Available", $"<html>{statusCheckFromDb.Name} Is Now In Stock At: <a href=\"{statusCheckFromDb.Url}\">here</a></html>");
                     }
                     statusCheckFromDb.LastNotified = DateTime.Now;
                     statusCheckRepository.Update(statusCheckFromDb);

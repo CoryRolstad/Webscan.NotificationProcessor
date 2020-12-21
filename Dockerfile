@@ -17,5 +17,18 @@ RUN dotnet publish "Webscan.NotificationProcessor.csproj" -c Release -o /app/pub
 
 FROM base AS final
 WORKDIR /app
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update -y && \
+    apt-get install -y iputils-ping && \
+    apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
 COPY --from=publish /app/publish .
+
+# Do not run as root user
+RUN chown -R www-data:www-data /app
+USER www-data
+
 ENTRYPOINT ["dotnet", "Webscan.NotificationProcessor.dll"]
